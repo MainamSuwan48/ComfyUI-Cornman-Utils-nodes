@@ -8,4 +8,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ResolutionPicker": "Resolution Picker",
 }
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+WEB_DIRECTORY = "./js"
+
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
