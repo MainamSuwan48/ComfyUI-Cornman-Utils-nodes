@@ -74,6 +74,15 @@ const STYLES = `
 }
 .rp-input:focus { border-color: #777; outline: none; }
 .rp-input.dim   { opacity: 0.35; }
+.rp-dim-label {
+    color: #666;
+    font-size: 9px;
+    flex-shrink: 0;
+    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.rp-dim-label.dim { opacity: 0.35; }
 .rp-sep {
     color: #666;
     font-size: 12px;
@@ -184,6 +193,10 @@ function createEditor(node, dataWidget) {
                 render();
             });
 
+            const wLabel = document.createElement("span");
+            wLabel.className = "rp-dim-label" + (dim ? " dim" : "");
+            wLabel.textContent = "W";
+
             const wIn = document.createElement("input");
             wIn.type = "number";
             wIn.className = "rp-input" + (dim ? " dim" : "");
@@ -198,6 +211,10 @@ function createEditor(node, dataWidget) {
             const sep = document.createElement("span");
             sep.className = "rp-sep" + (dim ? " dim" : "");
             sep.textContent = "×";
+
+            const hLabel = document.createElement("span");
+            hLabel.className = "rp-dim-label" + (dim ? " dim" : "");
+            hLabel.textContent = "H";
 
             const hIn = document.createElement("input");
             hIn.type = "number";
@@ -256,7 +273,7 @@ function createEditor(node, dataWidget) {
                 render();
             });
 
-            row.append(grip, tog, wIn, sep, hIn, del);
+            row.append(grip, tog, wLabel, wIn, sep, hLabel, hIn, del);
             rowsEl.appendChild(row);
         });
     }
