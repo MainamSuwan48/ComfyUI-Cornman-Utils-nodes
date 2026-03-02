@@ -1,0 +1,13 @@
+[project]
+name = "comfyui-cornman-utils-nodes"
+version = "0.1.0"
+description = "Utility nodes for ComfyUI by Cornman"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+
+[project.urls]
+Repository = "https://github.com/Cornman/ComfyUI-Cornman-Utils-nodes"
+
+[tool.comfy]
+PublisherId = "cornman"
+DisplayName = "Cornman Utils Nodes"
