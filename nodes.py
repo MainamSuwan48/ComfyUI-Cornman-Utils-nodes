@@ -123,4 +123,4 @@ class PromptWeight:
             return ("",)
         if weight == 1.0:
             return (text,)
-        return (f"({text}:{weight:.2f})",)
+        return (f"({text}:{weight:.2f}), ",)
