@@ -238,7 +238,8 @@ function createEditor(node, dataWidget) {
                 setData(dataWidget, data);
                 render();
                 requestAnimationFrame(() => {
-                    node.setSize(node.computeSize());
+                    const sz = node.computeSize();
+                    node.setSize([Math.max(sz[0], 260), sz[1]]);
                     app.graph.setDirtyCanvas(true);
                 });
             });
@@ -284,7 +285,8 @@ function createEditor(node, dataWidget) {
         setData(dataWidget, data);
         render();
         requestAnimationFrame(() => {
-            node.setSize(node.computeSize());
+            const sz = node.computeSize();
+            node.setSize([Math.max(sz[0], 260), sz[1]]);
             app.graph.setDirtyCanvas(true);
         });
     });
@@ -306,7 +308,8 @@ app.registerExtension({
             if (this._rpEditor?._render) {
                 this._rpEditor._render();
                 requestAnimationFrame(() => {
-                    this.setSize(this.computeSize());
+                    const sz = this.computeSize();
+                    this.setSize([Math.max(sz[0], 260), sz[1]]);
                 });
             }
         };
@@ -335,8 +338,11 @@ app.registerExtension({
             return [width, data.length * 32 + 46];
         };
 
+        const MIN_WIDTH = 260;
+        node.setSize([MIN_WIDTH, 100]);
         requestAnimationFrame(() => {
-            node.setSize(node.computeSize());
+            const sz = node.computeSize();
+            node.setSize([Math.max(sz[0], MIN_WIDTH), sz[1]]);
             app.graph.setDirtyCanvas(true);
         });
     },

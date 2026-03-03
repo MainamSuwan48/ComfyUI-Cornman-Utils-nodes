@@ -104,9 +104,13 @@ function saveState(widget, state) {
 
 function hideWidget(w) {
     if (!w) return;
-    w.type = "converted-widget";
     w.computeSize = () => [0, -4];
-    if (w.inputEl) w.inputEl.style.display = "none";
+    w.draw = () => {};
+    if (w.inputEl) {
+        w.inputEl.style.display = "none";
+        if (w.inputEl.parentElement) w.inputEl.parentElement.style.display = "none";
+    }
+    if (w.element) w.element.style.display = "none";
 }
 
 function syncInputSlots(node, target) {
@@ -123,13 +127,30 @@ function syncInputSlots(node, target) {
     }
 }
 
-function getSourceName(node, slotIndex) {
+const MODE_ACTIVE = 0;
+const MODE_BYPASS = 4;
+
+function getSourceNode(node, slotIndex) {
     const input = node.inputs?.[slotIndex];
     if (!input || input.link == null) return null;
     const link = app.graph.links[input.link];
     if (!link) return null;
-    const srcNode = app.graph.getNodeById(link.origin_id);
-    return srcNode?.title || srcNode?.type || null;
+    return app.graph.getNodeById(link.origin_id) || null;
+}
+
+function getSourceName(node, slotIndex) {
+    const src = getSourceNode(node, slotIndex);
+    return src?.title || src?.type || null;
+}
+
+function syncSourceModes(node, toggles) {
+    if (!node.inputs) return;
+    for (let i = 0; i < node.inputs.length; i++) {
+        const src = getSourceNode(node, i);
+        if (!src) continue;
+        const on = toggles[i] !== false;
+        src.mode = on ? MODE_ACTIVE : MODE_BYPASS;
+    }
 }
 
 function updateSlotLabels(node, toggles) {
@@ -169,6 +190,7 @@ function createUI(node, stateW) {
         const state = getState(stateW);
         const count = node.inputs ? node.inputs.length : state.count;
         updateSlotLabels(node, state.toggles);
+        syncSourceModes(node, state.toggles);
         rowsEl.innerHTML = "";
 
         for (let i = 0; i < count; i++) {
@@ -182,6 +204,7 @@ function createUI(node, stateW) {
             tog.addEventListener("click", () => {
                 state.toggles[i] = !state.toggles[i];
                 saveState(stateW, state);
+                syncSourceModes(node, state.toggles);
                 render();
                 app.graph.setDirtyCanvas(true);
             });
@@ -246,6 +269,7 @@ app.registerExtension({
             origCfg?.apply(this, arguments);
             const sw = this.widgets?.find((w) => w.name === "state_json");
             if (sw) {
+                hideWidget(sw);
                 const state = getState(sw);
                 syncInputSlots(this, state.count);
             }
@@ -289,7 +313,9 @@ app.registerExtension({
         };
 
         requestAnimationFrame(() => {
-            syncInputSlots(node, state.count);
+            hideWidget(stateW);
+            const current = getState(stateW);
+            syncInputSlots(node, current.count);
             ui._render();
             node.setSize(node.computeSize());
             app.graph.setDirtyCanvas(true);
