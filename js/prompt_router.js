@@ -143,13 +143,45 @@ function getSourceName(node, slotIndex) {
     return src?.title || src?.type || null;
 }
 
+function collectUpstream(startNode, visited) {
+    if (!startNode || visited.has(startNode.id)) return;
+    visited.add(startNode.id);
+    if (!startNode.inputs) return;
+    for (const input of startNode.inputs) {
+        if (input.link == null) continue;
+        const link = app.graph.links[input.link];
+        if (!link) continue;
+        const src = app.graph.getNodeById(link.origin_id);
+        collectUpstream(src, visited);
+    }
+}
+
 function syncSourceModes(node, toggles) {
     if (!node.inputs) return;
+
+    const activeIds = new Set();
+    const inactiveIds = new Set();
+
     for (let i = 0; i < node.inputs.length; i++) {
         const src = getSourceNode(node, i);
         if (!src) continue;
         const on = toggles[i] !== false;
-        src.mode = on ? MODE_ACTIVE : MODE_BYPASS;
+        const upstream = new Set();
+        collectUpstream(src, upstream);
+        for (const id of upstream) {
+            if (on) activeIds.add(id);
+            else inactiveIds.add(id);
+        }
+    }
+
+    for (const id of activeIds) {
+        const n = app.graph.getNodeById(id);
+        if (n && n.id !== node.id) n.mode = MODE_ACTIVE;
+    }
+    for (const id of inactiveIds) {
+        if (activeIds.has(id)) continue;
+        const n = app.graph.getNodeById(id);
+        if (n && n.id !== node.id) n.mode = MODE_BYPASS;
     }
 }
 
